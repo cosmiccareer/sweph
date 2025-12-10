@@ -1,0 +1,66 @@
+{
+  "description": "Venus Star Point interpretations by sign and type",
+  "note": "Add your interpretations from the VSP Description tab here",
+  "signs": {
+    "Aries": {
+      "general": "PLACEHOLDER: Add your Aries VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Aries interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Aries interpretation"
+    },
+    "Taurus": {
+      "general": "PLACEHOLDER: Add your Taurus VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Taurus interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Taurus interpretation"
+    },
+    "Gemini": {
+      "general": "PLACEHOLDER: Add your Gemini VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Gemini interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Gemini interpretation"
+    },
+    "Cancer": {
+      "general": "PLACEHOLDER: Add your Cancer VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Cancer interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Cancer interpretation"
+    },
+    "Leo": {
+      "general": "PLACEHOLDER: Add your Leo VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Leo interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Leo interpretation"
+    },
+    "Virgo": {
+      "general": "PLACEHOLDER: Add your Virgo VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Virgo interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Virgo interpretation"
+    },
+    "Libra": {
+      "general": "PLACEHOLDER: Add your Libra VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Libra interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Libra interpretation"
+    },
+    "Scorpio": {
+      "general": "PLACEHOLDER: Add your Scorpio VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Scorpio interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Scorpio interpretation"
+    },
+    "Sagittarius": {
+      "general": "PLACEHOLDER: Add your Sagittarius VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Sagittarius interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Sagittarius interpretation"
+    },
+    "Capricorn": {
+      "general": "PLACEHOLDER: Add your Capricorn VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Capricorn interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Capricorn interpretation"
+    },
+    "Aquarius": {
+      "general": "PLACEHOLDER: Add your Aquarius VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Aquarius interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Aquarius interpretation"
+    },
+    "Pisces": {
+      "general": "PLACEHOLDER: Add your Pisces VSP interpretation here",
+      "morningStar": "PLACEHOLDER: Add Morning Star in Pisces interpretation",
+      "eveningStar": "PLACEHOLDER: Add Evening Star in Pisces interpretation"
+    }
+  }
+}
