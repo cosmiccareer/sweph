@@ -1,0 +1,58 @@
+{
+  "description": "Mars Phase interpretations - add your interpretations from Mars Phase Description tab",
+  "source": "Ikigai Consultation Spreadsheet - Mars Phase Description",
+  "phases": {
+    "Inception": {
+      "description": "PLACEHOLDER: Add your Inception phase interpretation here",
+      "keywords": []
+    },
+    "Preparation": {
+      "description": "PLACEHOLDER: Add your Preparation phase interpretation here",
+      "keywords": []
+    },
+    "Emergence": {
+      "description": "PLACEHOLDER: Add your Emergence phase interpretation here",
+      "keywords": []
+    },
+    "Exploration": {
+      "description": "PLACEHOLDER: Add your Exploration phase interpretation here",
+      "keywords": []
+    },
+    "Identity Challenge": {
+      "description": "PLACEHOLDER: Add your Identity Challenge phase interpretation here",
+      "keywords": []
+    },
+    "Maturity": {
+      "description": "PLACEHOLDER: Add your Maturity phase interpretation here",
+      "keywords": []
+    },
+    "Transcendence": {
+      "description": "PLACEHOLDER: Add your Transcendence phase interpretation here",
+      "keywords": []
+    },
+    "Re-Orientation": {
+      "description": "PLACEHOLDER: Add your Re-Orientation phase interpretation here",
+      "keywords": []
+    },
+    "Resurgence": {
+      "description": "PLACEHOLDER: Add your Resurgence phase interpretation here",
+      "keywords": []
+    },
+    "Destiny Challenge": {
+      "description": "PLACEHOLDER: Add your Destiny Challenge phase interpretation here",
+      "keywords": []
+    },
+    "Service": {
+      "description": "PLACEHOLDER: Add your Service phase interpretation here",
+      "keywords": []
+    },
+    "Elder": {
+      "description": "PLACEHOLDER: Add your Elder phase interpretation here",
+      "keywords": []
+    },
+    "Transition": {
+      "description": "PLACEHOLDER: Add your Transition phase interpretation here",
+      "keywords": []
+    }
+  }
+}
