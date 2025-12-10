@@ -1,0 +1,19 @@
+{
+  "name": "astrology-api",
+  "version": "1.0.0",
+  "description": "Astrology API for chatbot using Swiss Ephemeris",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "sweph": "file:..",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "luxon": "^3.4.4"
+  },
+  "keywords": ["astrology", "api", "sweph", "swiss-ephemeris"],
+  "license": "ISC"
+}
