@@ -1,66 +1,66 @@
 {
-  "description": "Venus Star Point interpretations by sign and type",
-  "note": "Add your interpretations from the VSP Description tab here",
+  "description": "Venus Star Point interpretations by sign",
+  "source": "Ikigai Consultation Spreadsheet - VSPDescription",
   "signs": {
     "Aries": {
-      "general": "PLACEHOLDER: Add your Aries VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Aries interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Aries interpretation"
+      "greatestAssets": "The Aries VSP is predominantly self-made, self-confident, and self-directed, capable of rising to the occasion when leadership is needed; able to act quickly; in possession of a pioneering spirit; able to recover hope, as if seeing the world with the eyes of a child.",
+      "greatestLiabilities": "The biggest obstacle to your heart center is your impatient and impulsive nature, which often doesn't give others the chance to prove themselves. You like to direct or lead, for fear of not getting there quickly.",
+      "venusGift": "Venus's Gift to Aries: Love and a heart-centered approach to life come through a profound belief in oneself. With an Aries VSP, early on in life you assume the driver's seat, venturing forth in life. You, more than any other VSP, possess a pioneering spirit."
     },
     "Taurus": {
-      "general": "PLACEHOLDER: Add your Taurus VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Taurus interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Taurus interpretation"
+      "greatestAssets": "Down-to-earth, no-nonsense practicality; accuracy; the ability to hit the bull's-eye; an instinctive sensual nature that possesses the power of attraction; the ability to remain centered and grounded and to persevere in times of crisis; the desire to create peace and prosperity.",
+      "greatestLiabilities": "The biggest obstacle to your heart center can be your tendency to devalue something or someone because their value system is not the same as your own. Your self-worth (or another's) does not reside in possessions.",
+      "venusGift": "Venus's Gift to Taurus: A loving and heart-centered approach to life is natural for you as a Taurus VSP individual since Taurus is considered the home base of Venus, a sign in which Venus's nature is expressed to the fullest."
     },
     "Gemini": {
-      "general": "PLACEHOLDER: Add your Gemini VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Gemini interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Gemini interpretation"
+      "greatestAssets": "Tendency to be multi-talented multi-taskers, and thus are never bored or boring to others; ability to be agile and react quickly; success in games and sports; capacity to exchange viewpoints and engage in lively conversation.",
+      "greatestLiabilities": "The biggest obstacle to your heart's desire is not aiming your arrow in a straightforward direction, and/or being distracted by the myriad of possibilities for fulfillment that lie behind every door. Once you start something, follow through.",
+      "venusGift": "Venus's Gift to Gemini: Love and a heart-centered approach to life is expressed through your charming wit, playfulness and ability to entertain. As a Gemini VSP, you easily engage people and can cause laughter instantly. You connect through communication."
     },
     "Cancer": {
-      "general": "PLACEHOLDER: Add your Cancer VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Cancer interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Cancer interpretation"
+      "greatestAssets": "A natural, easy-going, down-home demeanor that makes people immediately feel at ease; the ability to nourish others through a capacity for understanding and connecting with people; a preference for living near water.",
+      "greatestLiabilities": "The biggest obstacle to the center of your heart is your early childhood wounds and what you didn't get from mommy. Once you get over them, you are embraced by the Divine Mother and comforted by unconditional love.",
+      "venusGift": "Venus's Gift to Cancer: Love and a heart-centered approach to life are expressed through a sweet, warm-hearted nature reflected in a warm and cozy home. Shelter is provided for self and others inside your home or in the world. The glyph for Cancer represents a crab, an animal that lives in or near the water and carries its home with it as it moves back and forth from land to sea."
     },
     "Leo": {
-      "general": "PLACEHOLDER: Add your Leo VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Leo interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Leo interpretation"
+      "greatestAssets": "Ability to radiate energy like the Sun, inspiring others with luminescence and leadership; the power of attraction and tendency to fame; bravery; ageless beauty; style and sophistication; ability for romance and creative expression.",
+      "greatestLiabilities": "The pathway or channel to your heart is of utmost importance, Leo Star, for your sign 'rules' the heart. Obstacles that keep you from getting there are the tendency to need constant attention and pampering.",
+      "venusGift": "Venus's Gift to Leo: Love and a heart-centered approach to life come through a burning desire to live life in a proud, passionate, and creative way, to shine like a beacon of strength and leadership to others."
     },
     "Virgo": {
-      "general": "PLACEHOLDER: Add your Virgo VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Virgo interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Virgo interpretation"
+      "greatestAssets": "The ability to come up with logical and practical solutions to problems and situations when others are confused; the ability to analyze human behavior; the ability to maintain a systematic and efficient approach to everything; the willingness to be a vehicle of divine service.",
+      "greatestLiabilities": "The biggest obstacle to the center of your heart is a default program of analysis, judgment and self-judgment that runs on autopilot. You will always find something in the world that is imperfect and needs fixing.",
+      "venusGift": "Venus's Gift to Virgo: Love and a heart-centered approach to life come through serving or providing for others in a way that makes you feel like you are performing your essential life's work, work that is tied to your heart."
     },
     "Libra": {
-      "general": "PLACEHOLDER: Add your Libra VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Libra interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Libra interpretation"
+      "greatestAssets": "Your natural charm and grace easily attract people, as does your easy-going manner, which does not threaten others; your sense of aesthetics draws you to harmonious environmental settings, especially natural beauty.",
+      "greatestLiabilities": "Trying to find the perfect partner, the pathway to your heart can be blocked by your mind's cool and objective analysis of others, luring you into dangerous relationships conceived by your mind and not your heart.",
+      "venusGift": "Venus's Gift to Libra: Love and a heart-centered approach to life come with double blessings for the Libra VSP under Venus' influence, which gives you a magnetic attraction and the ability to harmonize nicely with others. This is Venus's other home sign."
     },
     "Scorpio": {
-      "general": "PLACEHOLDER: Add your Scorpio VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Scorpio interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Scorpio interpretation"
+      "greatestAssets": "A desire to grasp the deepest mysteries of life; ability to empathize with others; ability to resonate with the shadow side, mystery, and the unconscious realms that frighten others.",
+      "greatestLiabilities": "The biggest obstacle to your heart centered self is the many layers of protection you build to keep people away from the innermost depths of your heart. You desire relationships for the shared power it brings.",
+      "venusGift": "Venus's Gift to Scorpio: Love and a heart-centered approach to life come through your ability to transform your life as well as the lives of others. You have the ability to greet the next day with hope and a sense of potential after the most devastating storms seem to have destroyed existence. Using your reliable and powerful instincts, you are masterfully skilled at making good decisions."
     },
     "Sagittarius": {
-      "general": "PLACEHOLDER: Add your Sagittarius VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Sagittarius interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Sagittarius interpretation"
+      "greatestAssets": "Willingness to journey to new places, discovering new worlds and ideas; the ability to make one's mark, nomatter how challenging; the ability to understand the cosmic order; possessing a philosophical approach to life.",
+      "greatestLiabilities": "The biggest obstacle to your heart center is the inner attitude of superiority you embrace or missing the wisdom that is contained in other points of view. Once you abandon the 'high horse' that the Sagittarius energy can create, you open to greater wisdom.",
+      "venusGift": "Venus's Gift to Sagittarius: Love and a heart-centered approach to life come as a result of elevating your mind and actions to focus on loftier pursuits. The Sagittarius VSP era marked one of the most colorful periods of recent history, and Sagittarius VSP individuals are equally colorful-funny, bold, irreverent, freedom-loving, and high-spirited. Keywords and concepts for Sagittarius are: aiming high, shooting one's arrow to hit the mark, the spirit of adventure and exploration, the cowboy, the horse, risk-taking and gambling, pilgrimage, foreign countries, language, courts, judges, and judgments; high-reaching, goal-oriented, the journeyer, the philosopher; the search for truth, justice, and cosmic order; belief in a higher power, magnanimous expansiveness, joviality, and optimism."
     },
     "Capricorn": {
-      "general": "PLACEHOLDER: Add your Capricorn VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Capricorn interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Capricorn interpretation"
+      "greatestAssets": "Steadiness and sure-footedness, especially in challenging times; ability to take command of situations and implement practical and efficient solutions to problems; tendency to be level-headed and cautious.",
+      "greatestLiabilities": "The obstacle that can stand in the way of the direct channel to your heart is your commitment to duty and honor over all else. You expect of others what you expect of yourself and become disappointed or judgmental when others don't measure up.",
+      "venusGift": "Venus's Gift to Capricorn: Love and a heart-centered approach to life is expressed through a modest, dignified, traditional type of beauty, as illustrated by the fashion and decorating statement of the last Capricorn VSP era. Capricorn VSP individuals possess a natural ability to command respect. Whether or not they are the eldest born, their role is looking after others and managing enterprises."
     },
     "Aquarius": {
-      "general": "PLACEHOLDER: Add your Aquarius VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Aquarius interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Aquarius interpretation"
+      "greatestAssets": "The ability to influence the viewpoints of many, potentially changing the world; the ability to act as role models and leaders; a detached non-emotional response to other people's criticisms and judgments.",
+      "greatestLiabilities": "The greatest obstacle to your heart-centered self is the vast amount of resources you have invested in mental and intellectual pursuits, which closes you off or potentially blocks the feelings and affections of others.",
+      "venusGift": "Venus's Gift to Aquarius: Love and a heart-centered approach to life come through demanding egalitarian relationships and focusing on, and combining energies with, a special friend/life mate as the source of your life's meaning."
     },
     "Pisces": {
-      "general": "PLACEHOLDER: Add your Pisces VSP interpretation here",
-      "morningStar": "PLACEHOLDER: Add Morning Star in Pisces interpretation",
-      "eveningStar": "PLACEHOLDER: Add Evening Star in Pisces interpretation"
+      "greatestAssets": "Kindness, compassion, and humility that helps others greatly; a spiritual focus and psychic sensitivity that provides the capacity to feel and understand things that others do not; an inclination towards music and the arts.",
+      "greatestLiabilities": "Blockage to the center of the heart is not usually a problem you encounter. Rather, your heart is so open that you're in danger of diving into deep waters and drowning, as lured by the Siren's sweet songs. Once you overcome the urge to take the plunge without first looking clearly at what you're diving into, you are able to love everyone without suffering.",
+      "venusGift": "Venus's Gift to Pisces: Love and a heart-centered approach to life is expressed with the fluidity of a flowing stream of imagination as Pisces VSP individuals are sensitive to even the most subtle energies."
     }
   }
 }

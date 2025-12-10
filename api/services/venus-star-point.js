@@ -104,8 +104,10 @@ function getVSPInterpretation(sign, type) {
   if (!signInterp) return null;
 
   return {
-    general: signInterp.general || null,
-    specific: signInterp[type.toLowerCase().replace(' ', '')] || signInterp.general || null
+    greatestAssets: signInterp.greatestAssets || null,
+    greatestLiabilities: signInterp.greatestLiabilities || null,
+    venusGift: signInterp.venusGift || null,
+    starType: type // Morning Star or Evening Star
   };
 }
 
