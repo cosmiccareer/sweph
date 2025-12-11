@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const astrologyRoutes = require('./routes/astrology');
+const { requireApiKey, createRateLimiter, requestLogger } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,17 +13,20 @@ app.use(cors());
 app.use(express.json());
 
 // Request logging
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`${new Date().toISOString()} ${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
-  });
-  next();
-});
+app.use(requestLogger);
 
-// API routes
-app.use('/api/v1', astrologyRoutes);
+// Rate limiting (100 requests per minute per IP)
+const rateLimiter = createRateLimiter({
+  windowMs: 60000,
+  maxRequests: 100,
+  message: 'Too many requests. Please wait before trying again.'
+});
+app.use('/api', rateLimiter);
+
+// API routes with optional authentication
+// To enable API key protection, set API_KEY environment variable
+// e.g., API_KEY=your-secret-key pm2 restart astrology-api
+app.use('/api/v1', requireApiKey, astrologyRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -37,16 +41,44 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     name: 'Astrology Chart API',
-    version: '1.0.0',
+    version: '2.0.0',
+    authentication: process.env.API_KEY ? 'API key required (X-API-Key header)' : 'No authentication (development mode)',
     endpoints: {
-      'POST /api/v1/chart': 'Calculate natal chart (requires timezone)',
-      'GET /api/v1/planets': 'Get current planetary positions',
-      'GET /api/v1/timezones': 'List common timezones',
-      'GET /api/v1/house-systems': 'List supported house systems',
-      'GET /health': 'Health check'
+      natal: {
+        'POST /api/v1/chart': 'Calculate natal chart',
+        'POST /api/v1/chart/full': 'Chart with VSP, Mars Phase',
+        'POST /api/v1/chart/comprehensive': 'All calculations in one call'
+      },
+      venusStarPoint: {
+        'POST /api/v1/vsp': 'Get Venus Star Point for birth date',
+        'POST /api/v1/venus-star': 'Get full 5-point Venus Star',
+        'GET /api/v1/vsp/next': 'Next upcoming VSP'
+      },
+      marsPhase: {
+        'POST /api/v1/mars-phase': 'Get Mars Phase for birth date',
+        'POST /api/v1/mars-cycle': 'Full Mars cycle context',
+        'GET /api/v1/mars-phase/next': 'Next upcoming Mars Phase',
+        'GET /api/v1/mars-phase/phases': 'List all 13 phase names'
+      },
+      advanced: {
+        'POST /api/v1/lunar-phase': 'Calculate lunar phase',
+        'POST /api/v1/progressions': 'Secondary progressions',
+        'POST /api/v1/prenatal-eclipses': 'Prenatal solar/lunar eclipses',
+        'POST /api/v1/planetary-phases': 'Planetary phase relationships',
+        'POST /api/v1/transits': 'Current transits to natal chart'
+      },
+      reference: {
+        'GET /api/v1/planets': 'Current planetary positions',
+        'GET /api/v1/timezones': 'List common timezones',
+        'GET /api/v1/house-systems': 'Supported house systems'
+      },
+      system: {
+        'GET /health': 'Health check'
+      }
     },
     example: {
-      endpoint: 'POST /api/v1/chart',
+      endpoint: 'POST /api/v1/chart/comprehensive',
+      headers: { 'X-API-Key': 'your-api-key' },
       body: {
         year: 1988,
         month: 1,
@@ -55,8 +87,7 @@ app.get('/', (req, res) => {
         minute: 22,
         latitude: 40.7128,
         longitude: -74.006,
-        timezone: 'America/New_York',
-        houseSystem: 'P'
+        timezone: 'America/New_York'
       }
     }
   });
@@ -67,11 +98,12 @@ app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: 'Not found',
-    availableEndpoints: [
+    hint: 'Visit / for complete API documentation',
+    commonEndpoints: [
+      'POST /api/v1/chart/comprehensive',
       'POST /api/v1/chart',
-      'GET /api/v1/planets',
-      'GET /api/v1/timezones',
-      'GET /api/v1/house-systems',
+      'POST /api/v1/vsp',
+      'POST /api/v1/mars-phase',
       'GET /health'
     ]
   });
