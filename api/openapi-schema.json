@@ -1,0 +1,950 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cosmo the Cosmic CEO - Astrology API",
+    "description": "Complete astrology API for natal charts, Venus Star Point, Mars Phase, Ikigai analysis, and more",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.fishpole.me"
+    }
+  ],
+  "paths": {
+    "/api/v1/chart/comprehensive": {
+      "post": {
+        "operationId": "getComprehensiveChart",
+        "summary": "Get complete natal chart with all calculations",
+        "description": "Returns natal chart, Venus Star Point, Mars Phase, lunar phase, prenatal eclipses, progressions, and transits in one call",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete chart data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComprehensiveChartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chart": {
+      "post": {
+        "operationId": "getNatalChart",
+        "summary": "Calculate basic natal chart",
+        "description": "Returns planetary positions, house cusps, and aspects",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Natal chart data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chart/full": {
+      "post": {
+        "operationId": "getFullChart",
+        "summary": "Chart with VSP and Mars Phase",
+        "description": "Returns natal chart plus Venus Star Point and Mars Phase",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Full chart data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vsp": {
+      "post": {
+        "operationId": "getVenusStarPoint",
+        "summary": "Get Venus Star Point for birth date",
+        "description": "Returns the prenatal Venus-Sun conjunction (Venus Star Point) with zodiac sign and interpretation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Venus Star Point data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/venus-star": {
+      "post": {
+        "operationId": "getFullVenusStar",
+        "summary": "Get complete 5-point Venus Star",
+        "description": "Returns all 5 points of the Venus Star pentagram: top (prenatal VSP), left arm, right arm, left leg, right leg",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Full Venus Star data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vsp/next": {
+      "get": {
+        "operationId": "getNextVSP",
+        "summary": "Get next upcoming Venus Star Point",
+        "description": "Returns the next Venus-Sun conjunction date and sign",
+        "responses": {
+          "200": {
+            "description": "Next VSP data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mars-phase": {
+      "post": {
+        "operationId": "getMarsPhase",
+        "summary": "Get Mars Phase for birth date",
+        "description": "Returns the Mars phase at birth (one of 13 phases in the Mars cycle) with interpretation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mars Phase data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mars-cycle": {
+      "post": {
+        "operationId": "getMarsCycle",
+        "summary": "Get full Mars cycle context",
+        "description": "Returns the current phase plus all phases in the same Mars cycle",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mars cycle data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mars-phase/next": {
+      "get": {
+        "operationId": "getNextMarsPhase",
+        "summary": "Get next upcoming Mars Phase",
+        "description": "Returns the next Mars phase change date",
+        "responses": {
+          "200": {
+            "description": "Next Mars phase data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mars-phase/phases": {
+      "get": {
+        "operationId": "getMarsPhaseNames",
+        "summary": "List all 13 Mars phase names",
+        "description": "Returns the names of all 13 phases in the Mars cycle",
+        "responses": {
+          "200": {
+            "description": "Phase names list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lunar-phase": {
+      "post": {
+        "operationId": "getLunarPhase",
+        "summary": "Calculate lunar phase for a date",
+        "description": "Returns the Moon phase (New, Waxing, Full, Waning, etc.)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lunar phase data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/progressions": {
+      "post": {
+        "operationId": "getProgressions",
+        "summary": "Calculate secondary progressions",
+        "description": "Returns secondary progressed positions for a target date",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProgressionsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Progressions data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/prenatal-eclipses": {
+      "post": {
+        "operationId": "getPrenatalEclipses",
+        "summary": "Find prenatal solar and lunar eclipses",
+        "description": "Returns the solar and lunar eclipses that occurred before birth",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateWithLocationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Prenatal eclipse data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/planetary-phases": {
+      "post": {
+        "operationId": "getPlanetaryPhases",
+        "summary": "Calculate planetary phase relationships",
+        "description": "Returns phase relationships between planets (e.g., Mercury phase relative to Sun)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Planetary phases data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transits": {
+      "post": {
+        "operationId": "getTransits",
+        "summary": "Calculate current transits to natal chart",
+        "description": "Returns current planetary transits aspecting natal positions",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transits data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ikigai": {
+      "post": {
+        "operationId": "getIkigaiAnalysis",
+        "summary": "Full Ikigai analysis from birth data",
+        "description": "Returns complete Ikigai framework analysis mapping natal chart to: What You Love, What You're Good At, What The World Needs, What You Can Be Paid For, plus business ideas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ikigai analysis data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IkigaiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ikigai/from-chart": {
+      "post": {
+        "operationId": "getIkigaiFromChart",
+        "summary": "Ikigai analysis from existing chart data",
+        "description": "Run Ikigai analysis on a chart you already have",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChartDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ikigai analysis data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IkigaiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ikigai/interpretation/{planet}/{sign}": {
+      "get": {
+        "operationId": "getIkigaiInterpretation",
+        "summary": "Get planet-in-sign interpretation",
+        "description": "Returns Ikigai interpretation for a specific planet in a specific sign",
+        "parameters": [
+          {
+            "name": "planet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]
+            },
+            "description": "Planet name (lowercase)"
+          },
+          {
+            "name": "sign",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+            },
+            "description": "Zodiac sign (capitalized)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Planet-sign interpretation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ikigai/house-interpretation/{planet}/{house}": {
+      "get": {
+        "operationId": "getIkigaiHouseInterpretation",
+        "summary": "Get planet-in-house interpretation",
+        "description": "Returns Ikigai interpretation for a planet in a specific house",
+        "parameters": [
+          {
+            "name": "planet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]
+            },
+            "description": "Planet name (lowercase)"
+          },
+          {
+            "name": "house",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "description": "House number (1-12)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Planet-house interpretation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/planets": {
+      "get": {
+        "operationId": "getCurrentPlanets",
+        "summary": "Get current planetary positions",
+        "description": "Returns current positions of all planets right now",
+        "responses": {
+          "200": {
+            "description": "Current planetary positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/timezones": {
+      "get": {
+        "operationId": "getTimezones",
+        "summary": "List common timezones",
+        "description": "Returns list of common IANA timezones grouped by region",
+        "responses": {
+          "200": {
+            "description": "Timezone list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/house-systems": {
+      "get": {
+        "operationId": "getHouseSystems",
+        "summary": "List supported house systems",
+        "description": "Returns list of supported astrological house systems with codes",
+        "responses": {
+          "200": {
+            "description": "House systems list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BirthDataRequest": {
+        "type": "object",
+        "required": ["year", "month", "day", "hour", "minute", "latitude", "longitude", "timezone"],
+        "properties": {
+          "year": {
+            "type": "integer",
+            "description": "Birth year (e.g., 1988)",
+            "example": 1988
+          },
+          "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Birth month (1-12)",
+            "example": 1
+          },
+          "day": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31,
+            "description": "Birth day (1-31)",
+            "example": 14
+          },
+          "hour": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23,
+            "description": "Birth hour in 24h format (0-23)",
+            "example": 10
+          },
+          "minute": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 59,
+            "description": "Birth minute (0-59)",
+            "example": 22
+          },
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Birth location latitude",
+            "example": 40.7128
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Birth location longitude",
+            "example": -74.006
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone (e.g., America/New_York)",
+            "example": "America/New_York"
+          },
+          "houseSystem": {
+            "type": "string",
+            "default": "P",
+            "description": "House system code (P=Placidus, K=Koch, W=Whole Sign, etc.)",
+            "example": "P"
+          }
+        }
+      },
+      "DateRequest": {
+        "type": "object",
+        "required": ["year", "month", "day"],
+        "properties": {
+          "year": {
+            "type": "integer",
+            "description": "Year",
+            "example": 1988
+          },
+          "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Month (1-12)",
+            "example": 1
+          },
+          "day": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31,
+            "description": "Day (1-31)",
+            "example": 14
+          },
+          "hour": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23,
+            "description": "Hour (optional, defaults to 12)",
+            "example": 12
+          },
+          "minute": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 59,
+            "description": "Minute (optional, defaults to 0)",
+            "example": 0
+          }
+        }
+      },
+      "DateWithLocationRequest": {
+        "type": "object",
+        "required": ["year", "month", "day"],
+        "properties": {
+          "year": {
+            "type": "integer",
+            "example": 1988
+          },
+          "month": {
+            "type": "integer",
+            "example": 1
+          },
+          "day": {
+            "type": "integer",
+            "example": 14
+          },
+          "hour": {
+            "type": "integer",
+            "example": 12
+          },
+          "minute": {
+            "type": "integer",
+            "example": 0
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Optional latitude for eclipse visibility",
+            "example": 40.7128
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Optional longitude for eclipse visibility",
+            "example": -74.006
+          }
+        }
+      },
+      "ProgressionsRequest": {
+        "type": "object",
+        "required": ["birthYear", "birthMonth", "birthDay", "targetYear", "targetMonth", "targetDay"],
+        "properties": {
+          "birthYear": {
+            "type": "integer",
+            "example": 1988
+          },
+          "birthMonth": {
+            "type": "integer",
+            "example": 1
+          },
+          "birthDay": {
+            "type": "integer",
+            "example": 14
+          },
+          "birthHour": {
+            "type": "integer",
+            "example": 10
+          },
+          "birthMinute": {
+            "type": "integer",
+            "example": 22
+          },
+          "targetYear": {
+            "type": "integer",
+            "description": "Year to progress to",
+            "example": 2024
+          },
+          "targetMonth": {
+            "type": "integer",
+            "example": 12
+          },
+          "targetDay": {
+            "type": "integer",
+            "example": 1
+          },
+          "latitude": {
+            "type": "number",
+            "example": 40.7128
+          },
+          "longitude": {
+            "type": "number",
+            "example": -74.006
+          }
+        }
+      },
+      "TransitsRequest": {
+        "type": "object",
+        "required": ["natalPlanets"],
+        "properties": {
+          "natalPlanets": {
+            "type": "object",
+            "description": "Object with natal planet positions (from chart calculation)",
+            "example": {
+              "sun": { "longitude": 293.5 },
+              "moon": { "longitude": 45.2 }
+            }
+          },
+          "transitYear": {
+            "type": "integer",
+            "description": "Year for transits (defaults to now)"
+          },
+          "transitMonth": {
+            "type": "integer"
+          },
+          "transitDay": {
+            "type": "integer"
+          }
+        }
+      },
+      "ChartDataRequest": {
+        "type": "object",
+        "required": ["chart"],
+        "properties": {
+          "chart": {
+            "type": "object",
+            "description": "Chart object with planets and houses from previous calculation",
+            "properties": {
+              "planets": {
+                "type": "object"
+              },
+              "houses": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "ComprehensiveChartResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "chart": {
+                "type": "object",
+                "description": "Natal chart with planets, houses, aspects"
+              },
+              "venusStarPoint": {
+                "type": "object",
+                "description": "Venus Star Point data"
+              },
+              "venusStar": {
+                "type": "object",
+                "description": "Full 5-point Venus Star"
+              },
+              "marsPhase": {
+                "type": "object",
+                "description": "Mars Phase data"
+              },
+              "lunarPhase": {
+                "type": "object",
+                "description": "Moon phase at birth"
+              },
+              "prenatalEclipses": {
+                "type": "object",
+                "description": "Prenatal solar and lunar eclipses"
+              },
+              "planetaryPhases": {
+                "type": "object",
+                "description": "Planetary phase relationships"
+              },
+              "progressions": {
+                "type": "object",
+                "description": "Secondary progressions to current date"
+              },
+              "currentTransits": {
+                "type": "object",
+                "description": "Current transits to natal chart"
+              }
+            }
+          }
+        }
+      },
+      "IkigaiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "analysis": {
+                "type": "object",
+                "description": "Full Ikigai analysis with whatYouLove, whatYoureGoodAt, whatTheWorldNeeds, whatYouCanBePaidFor sections"
+              },
+              "summary": {
+                "type": "string",
+                "description": "Narrative summary of the Ikigai analysis"
+              },
+              "businessIdeas": {
+                "type": "array",
+                "description": "Suggested business ideas based on chart"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
