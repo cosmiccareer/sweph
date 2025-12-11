@@ -42,7 +42,7 @@ router.post('/chart', (req, res) => {
       latitude,
       longitude,
       timezone,
-      houseSystem = 'P'
+      houseSystem = 'R'  // Default to Regiomontanus for natal charts
     } = req.body;
 
     // Validate required fields
@@ -312,7 +312,7 @@ router.post('/chart/full', (req, res) => {
       latitude,
       longitude,
       timezone,
-      houseSystem = 'P'
+      houseSystem = 'R'  // Default to Regiomontanus
     } = req.body;
 
     // Validate required fields
@@ -733,7 +733,7 @@ router.post('/chart/comprehensive', (req, res) => {
     const {
       year, month, day, hour, minute,
       latitude, longitude, timezone,
-      houseSystem = 'P'
+      houseSystem = 'R'  // Default to Regiomontanus
     } = req.body;
 
     // Validate required fields
@@ -848,7 +848,7 @@ router.post('/ikigai', (req, res) => {
     const {
       year, month, day, hour, minute,
       latitude, longitude, timezone,
-      houseSystem = 'P'
+      houseSystem = 'R'  // Default to Regiomontanus
     } = req.body;
 
     // Validate required fields

@@ -675,9 +675,9 @@
           },
           "houseSystem": {
             "type": "string",
-            "default": "P",
-            "description": "House system code (P=Placidus, K=Koch, W=Whole Sign, etc.)",
-            "example": "P"
+            "default": "R",
+            "description": "House system code (R=Regiomontanus default, K=Koch for timing, P=Placidus, W=Whole Sign)",
+            "example": "R"
           }
         }
       },
