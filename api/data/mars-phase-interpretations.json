@@ -1,58 +1,45 @@
 {
-  "description": "Mars Phase interpretations - add your interpretations from Mars Phase Description tab",
+  "description": "Mars Phase interpretations by phase",
   "source": "Ikigai Consultation Spreadsheet - Mars Phase Description",
   "phases": {
     "Inception": {
-      "description": "PLACEHOLDER: Add your Inception phase interpretation here",
-      "keywords": []
+      "description": "Trusting and acting on one's essential, even pre-cognitive, instincts; speaking up for oneself; not taking challenges personally but as motivators for improvement; strengthening self-confidence; challenged by issues of isolation."
     },
     "Preparation": {
-      "description": "PLACEHOLDER: Add your Preparation phase interpretation here",
-      "keywords": []
+      "description": "Fleshing out personal intentions or goals; working behind the scenes; learning proper preparation in one's plans; opening to working with others; facing lack of confidence; dealing with others' rules; balancing private and social."
     },
     "Emergence": {
-      "description": "PLACEHOLDER: Add your Emergence phase interpretation here",
-      "keywords": []
+      "description": "Awakening one's individual intentions for improving society by one's instinctual wisdom; strives to be first, original, to bring things into the open; strong exterior/external orientation to things; natural risk-takers; drive to be first."
     },
     "Exploration": {
-      "description": "PLACEHOLDER: Add your Exploration phase interpretation here",
-      "keywords": []
+      "description": "Widely exploring one's agency, the reach of one's effectiveness; needs lots of time for experimentation/experience to grow knowledge; instinct into informed choices; themes of personal growth emerge; challenged to accept."
     },
     "Identity Challenge": {
-      "description": "PLACEHOLDER: Add your Identity Challenge phase interpretation here",
-      "keywords": []
+      "description": "Transforming personal challenges into societal contributions; meeting internal and external challenges to freedom of action; learning to surrender the battle for the larger goal; increasing energetic vitality; ego drive needs less."
     },
     "Maturity": {
-      "description": "PLACEHOLDER: Add your Maturity phase interpretation here",
-      "keywords": []
+      "description": "Increasing the relevancy and influence of one's individual contribution to the world; 'early adulthood'; increasing self-responsibility; learning authentic commitment; strong attraction to finding purpose through work/contribution."
     },
     "Transcendence": {
-      "description": "PLACEHOLDER: Add your Transcendence phase interpretation here",
-      "keywords": []
+      "description": "Re-envisioning a better future; radical commitment to one's authentic vision; learning to be a vehicle for a greater message; accessing spiritual dimensions or 'peak' experiences; challenged to find balance in outer and inner."
     },
     "Re-Orientation": {
-      "description": "PLACEHOLDER: Add your Re-Orientation phase interpretation here",
-      "keywords": []
+      "description": "Re-building or re-framing one's identity to better participate in society; learning adjustment and flexibility; gestation of new social identity; challenged by under-confidence; integrating external information overt or discreet; rising."
     },
     "Resurgence": {
-      "description": "PLACEHOLDER: Add your Resurgence phase interpretation here",
-      "keywords": []
+      "description": "Initial mobilizing of personal dharma; drive to prove or improve oneself; strong need to engage in meaningful things; requires a social context to actualize; discovering longer-term thinking and/or planning; challenged with impatience."
     },
     "Destiny Challenge": {
-      "description": "PLACEHOLDER: Add your Destiny Challenge phase interpretation here",
-      "keywords": []
+      "description": "Deep reconciling to something bigger than them; compelled to act on deeper Desire; major transformations around Life Purpose for societal gain; life lessons must be embodied not only intellectualized; challenged to reach further."
     },
     "Service": {
-      "description": "PLACEHOLDER: Add your Service phase interpretation here",
-      "keywords": []
+      "description": "You're a natural leader. You want to align your personal beliefs with societal ethics. You want to use your agency to help other people. When you feel overwhelmed, rest and take a deep breath, step back. You are here to make a difference. Actualizing and refining one's personal dharmic vision within societal reality; natural leadership; personal beliefs aligning with social ethics; learning to wield one's social equity for non-personal goals; issues of overwhelm and boundaries."
     },
     "Elder": {
-      "description": "PLACEHOLDER: Add your Elder phase interpretation here",
-      "keywords": []
+      "description": "Orchestrating efforts and actions for longer-range societal benefit; relinquishing personal ideas about what's needed for greater good; willing to see what is rather than what one wants; embodying the bigger imagination needed."
     },
     "Transition": {
-      "description": "PLACEHOLDER: Add your Transition phase interpretation here",
-      "keywords": []
+      "description": "Bringing social potential into matter; fuller being-ness replaces excess doing-ness; easier access to big picture; ensuring continuity through personal efforts; challenged to translate deep, long-range wisdom in pragmatic ways."
     }
   }
 }
