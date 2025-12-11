@@ -1,0 +1,74 @@
+{
+  "description": "Maps astrological placements to Ikigai framework components",
+  "ikigaiComponents": {
+    "whatYouLove": {
+      "description": "Passion - What brings you joy and fulfillment",
+      "primaryPlanets": ["venus", "moon", "sun"],
+      "primaryHouses": [5, 1, 4],
+      "aspects": ["venus-sun", "moon-venus"]
+    },
+    "whatYoureGoodAt": {
+      "description": "Vocation - Your natural talents and skills",
+      "primaryPlanets": ["mercury", "saturn", "mars"],
+      "primaryHouses": [6, 10, 3],
+      "aspects": ["mercury-saturn", "mars-saturn"]
+    },
+    "whatTheWorldNeeds": {
+      "description": "Mission - How you can serve others",
+      "primaryPlanets": ["jupiter", "neptune", "north_node"],
+      "primaryHouses": [9, 11, 12],
+      "aspects": ["jupiter-neptune", "sun-north_node"]
+    },
+    "whatYouCanBePaidFor": {
+      "description": "Profession - Marketable skills and income potential",
+      "primaryPlanets": ["saturn", "jupiter", "pluto"],
+      "primaryHouses": [2, 10, 8],
+      "aspects": ["saturn-jupiter", "venus-saturn"]
+    }
+  },
+  "intersections": {
+    "passion": {
+      "components": ["whatYouLove", "whatYoureGoodAt"],
+      "description": "Where love meets skill"
+    },
+    "mission": {
+      "components": ["whatYouLove", "whatTheWorldNeeds"],
+      "description": "Where love meets purpose"
+    },
+    "profession": {
+      "components": ["whatYoureGoodAt", "whatYouCanBePaidFor"],
+      "description": "Where skill meets income"
+    },
+    "vocation": {
+      "components": ["whatTheWorldNeeds", "whatYouCanBePaidFor"],
+      "description": "Where purpose meets income"
+    }
+  },
+  "houseSignificance": {
+    "1": { "theme": "Identity & Self-Expression", "ikigai": "whatYouLove" },
+    "2": { "theme": "Resources & Values", "ikigai": "whatYouCanBePaidFor" },
+    "3": { "theme": "Communication & Learning", "ikigai": "whatYoureGoodAt" },
+    "4": { "theme": "Foundation & Roots", "ikigai": "whatYouLove" },
+    "5": { "theme": "Creativity & Joy", "ikigai": "whatYouLove" },
+    "6": { "theme": "Service & Craft", "ikigai": "whatYoureGoodAt" },
+    "7": { "theme": "Partnership & Balance", "ikigai": "whatTheWorldNeeds" },
+    "8": { "theme": "Transformation & Shared Resources", "ikigai": "whatYouCanBePaidFor" },
+    "9": { "theme": "Vision & Higher Purpose", "ikigai": "whatTheWorldNeeds" },
+    "10": { "theme": "Career & Public Role", "ikigai": "whatYouCanBePaidFor" },
+    "11": { "theme": "Community & Innovation", "ikigai": "whatTheWorldNeeds" },
+    "12": { "theme": "Spirituality & Transcendence", "ikigai": "whatTheWorldNeeds" }
+  },
+  "planetaryRoles": {
+    "sun": { "role": "Core Identity", "question": "Who am I meant to be?" },
+    "moon": { "role": "Emotional Needs", "question": "What do I need to feel fulfilled?" },
+    "mercury": { "role": "Communication Style", "question": "How do I think and express?" },
+    "venus": { "role": "Values & Attraction", "question": "What do I love and value?" },
+    "mars": { "role": "Drive & Action", "question": "How do I take action?" },
+    "jupiter": { "role": "Growth & Opportunity", "question": "Where can I expand?" },
+    "saturn": { "role": "Structure & Mastery", "question": "What must I master?" },
+    "uranus": { "role": "Innovation & Uniqueness", "question": "How am I different?" },
+    "neptune": { "role": "Inspiration & Vision", "question": "What is my dream?" },
+    "pluto": { "role": "Transformation & Power", "question": "What must I transform?" },
+    "north_node": { "role": "Soul Purpose", "question": "What am I growing toward?" }
+  }
+}

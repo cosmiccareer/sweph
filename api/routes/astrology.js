@@ -12,6 +12,13 @@ const {
   calculateTransits,
   dateToJulianDay
 } = require('../services/advanced-calculations');
+const {
+  analyzeIkigai,
+  generateIkigaiSummary,
+  suggestBusinessIdeas,
+  getPlanetInSignInterpretation,
+  getPlanetInHouseInterpretation
+} = require('../services/ikigai');
 
 /**
  * POST /api/v1/chart - Calculate natal chart
@@ -826,6 +833,182 @@ router.post('/chart/comprehensive', (req, res) => {
       success: false,
       error: error.message,
       hint: 'Check that timezone is a valid IANA timezone'
+    });
+  }
+});
+
+/**
+ * POST /api/v1/ikigai - Full Ikigai analysis from birth data
+ *
+ * Required: year, month, day, hour, minute, latitude, longitude, timezone
+ * Returns: Complete Ikigai framework analysis
+ */
+router.post('/ikigai', (req, res) => {
+  try {
+    const {
+      year, month, day, hour, minute,
+      latitude, longitude, timezone,
+      houseSystem = 'P'
+    } = req.body;
+
+    // Validate required fields
+    const missing = [];
+    if (year === undefined) missing.push('year');
+    if (month === undefined) missing.push('month');
+    if (day === undefined) missing.push('day');
+    if (hour === undefined) missing.push('hour');
+    if (minute === undefined) missing.push('minute');
+    if (latitude === undefined) missing.push('latitude');
+    if (longitude === undefined) missing.push('longitude');
+    if (!timezone) missing.push('timezone');
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Missing required fields: ${missing.join(', ')}`
+      });
+    }
+
+    // Calculate natal chart first
+    const chart = calculateChart(
+      parseInt(year), parseInt(month), parseInt(day),
+      parseInt(hour), parseInt(minute),
+      parseFloat(latitude), parseFloat(longitude),
+      timezone, houseSystem
+    );
+
+    // Run Ikigai analysis
+    const ikigaiAnalysis = analyzeIkigai(chart);
+    const summary = generateIkigaiSummary(ikigaiAnalysis);
+    const businessIdeas = suggestBusinessIdeas(ikigaiAnalysis);
+
+    res.json({
+      success: true,
+      data: {
+        analysis: ikigaiAnalysis,
+        summary,
+        businessIdeas,
+        chartSummary: {
+          sun: chart.planets?.sun,
+          moon: chart.planets?.moon,
+          ascendant: chart.houses?.ascendant
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Ikigai analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/v1/ikigai/from-chart - Ikigai analysis from existing chart data
+ *
+ * Required: chart object with planets and houses
+ */
+router.post('/ikigai/from-chart', (req, res) => {
+  try {
+    const { chart } = req.body;
+
+    if (!chart || !chart.planets) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: chart (with planets object)'
+      });
+    }
+
+    const ikigaiAnalysis = analyzeIkigai(chart);
+    const summary = generateIkigaiSummary(ikigaiAnalysis);
+    const businessIdeas = suggestBusinessIdeas(ikigaiAnalysis);
+
+    res.json({
+      success: true,
+      data: {
+        analysis: ikigaiAnalysis,
+        summary,
+        businessIdeas
+      }
+    });
+  } catch (error) {
+    console.error('Ikigai from-chart error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/v1/ikigai/interpretation/:planet/:sign - Get specific interpretation
+ */
+router.get('/ikigai/interpretation/:planet/:sign', (req, res) => {
+  try {
+    const { planet, sign } = req.params;
+
+    const interpretation = getPlanetInSignInterpretation(
+      planet.toLowerCase(),
+      sign.charAt(0).toUpperCase() + sign.slice(1).toLowerCase()
+    );
+
+    if (!interpretation) {
+      return res.status(404).json({
+        success: false,
+        error: `No interpretation found for ${planet} in ${sign}`
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        planet,
+        sign,
+        interpretation
+      }
+    });
+  } catch (error) {
+    console.error('Interpretation lookup error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/v1/ikigai/house-interpretation/:planet/:house - Get house interpretation
+ */
+router.get('/ikigai/house-interpretation/:planet/:house', (req, res) => {
+  try {
+    const { planet, house } = req.params;
+
+    const interpretation = getPlanetInHouseInterpretation(
+      planet.toLowerCase(),
+      parseInt(house)
+    );
+
+    if (!interpretation) {
+      return res.status(404).json({
+        success: false,
+        error: `No interpretation found for ${planet} in house ${house}`
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        planet,
+        house: parseInt(house),
+        interpretation
+      }
+    });
+  } catch (error) {
+    console.error('House interpretation lookup error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
