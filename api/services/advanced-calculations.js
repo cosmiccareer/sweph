@@ -14,22 +14,29 @@ const path = require('path');
 
 // Set ephemeris path
 const ephePath = path.join(__dirname, '../../ephe');
-sweph.swe_set_ephe_path(ephePath);
+sweph.set_ephe_path(ephePath);
 
-// Constants
+// Planet constants (npm sweph uses numeric values directly)
 const PLANETS = {
-  SUN: sweph.SE_SUN,
-  MOON: sweph.SE_MOON,
-  MERCURY: sweph.SE_MERCURY,
-  VENUS: sweph.SE_VENUS,
-  MARS: sweph.SE_MARS,
-  JUPITER: sweph.SE_JUPITER,
-  SATURN: sweph.SE_SATURN,
-  URANUS: sweph.SE_URANUS,
-  NEPTUNE: sweph.SE_NEPTUNE,
-  PLUTO: sweph.SE_PLUTO,
-  NORTH_NODE: sweph.SE_TRUE_NODE
+  SUN: sweph.SUN || 0,
+  MOON: sweph.MOON || 1,
+  MERCURY: sweph.MERCURY || 2,
+  VENUS: sweph.VENUS || 3,
+  MARS: sweph.MARS || 4,
+  JUPITER: sweph.JUPITER || 5,
+  SATURN: sweph.SATURN || 6,
+  URANUS: sweph.URANUS || 7,
+  NEPTUNE: sweph.NEPTUNE || 8,
+  PLUTO: sweph.PLUTO || 9,
+  NORTH_NODE: sweph.TRUE_NODE || 11
 };
+
+// Flags for calculations
+const SEFLG_SWIEPH = sweph.SWIEPH || 2;
+const SEFLG_SPEED = sweph.SPEED || 256;
+const SE_GREG_CAL = 1;  // Gregorian calendar
+const SE_ECL_ALLTYPES_SOLAR = 0;  // Find any type of solar eclipse
+const SE_ECL_ALLTYPES_LUNAR = 0;  // Find any type of lunar eclipse
 
 const LUNAR_PHASES = [
   { name: 'New Moon', start: 0, end: 45 },
@@ -64,7 +71,8 @@ function normalizeAngle(angle) {
  */
 function dateToJulianDay(year, month, day, hour = 12, minute = 0) {
   const decimalHour = hour + minute / 60;
-  return sweph.swe_julday(year, month, day, decimalHour, sweph.SE_GREG_CAL);
+  // Use 1 for Gregorian calendar (SE_GREG_CAL), 0 for Julian (SE_JUL_CAL)
+  return sweph.julday(year, month, day, decimalHour, SE_GREG_CAL);
 }
 
 /**
@@ -155,10 +163,10 @@ function calculateProgressedChart(birthJd, targetDate, latitude = 0, longitude =
 
   // Calculate planetary positions for progressed date
   const progressedPlanets = {};
-  const flag = sweph.SEFLG_SWIEPH | sweph.SEFLG_SPEED;
+  const flag = SEFLG_SWIEPH | SEFLG_SPEED;
 
   for (const [name, id] of Object.entries(PLANETS)) {
-    const result = sweph.swe_calc_ut(progressedJd, id, flag);
+    const result = sweph.calc_ut(progressedJd, id, flag);
     if (result.flag >= 0) {
       const lng = result.longitude;
       progressedPlanets[name.toLowerCase()] = {
@@ -181,7 +189,7 @@ function calculateProgressedChart(birthJd, targetDate, latitude = 0, longitude =
   // Calculate houses if coordinates provided
   let progressedHouses = null;
   if (latitude !== 0 || longitude !== 0) {
-    const houseResult = sweph.swe_houses(progressedJd, latitude, longitude, 'P');
+    const houseResult = sweph.houses(progressedJd, latitude, longitude, 'P');
     if (houseResult) {
       progressedHouses = {
         ascendant: houseResult.ascendant,
@@ -211,7 +219,7 @@ function calculateProgressedChart(birthJd, targetDate, latitude = 0, longitude =
  */
 function findPrenatalSolarEclipse(birthJd, latitude = 0, longitude = 0) {
   // Search backwards for solar eclipse
-  // sweph.swe_sol_eclipse_when_glob finds eclipses
+  // sweph.sol_eclipse_when_glob finds eclipses
   // We need to search before birthJd
 
   let searchJd = birthJd;
@@ -225,19 +233,19 @@ function findPrenatalSolarEclipse(birthJd, latitude = 0, longitude = 0) {
   while (!eclipse && searchAttempts < maxAttempts) {
     try {
       // Search for previous solar eclipse
-      const result = sweph.swe_sol_eclipse_when_glob(
+      const result = sweph.sol_eclipse_when_glob(
         searchJd,
-        sweph.SEFLG_SWIEPH,
-        sweph.SE_ECL_ALLTYPES_SOLAR,
+        SEFLG_SWIEPH,
+        SE_ECL_ALLTYPES_SOLAR,
         true // backward search
       );
 
       if (result && result.tret && result.tret[0] < birthJd) {
         const eclipseJd = result.tret[0];
-        const eclipseDate = sweph.swe_revjul(eclipseJd, sweph.SE_GREG_CAL);
+        const eclipseDate = sweph.revjul(eclipseJd, SE_GREG_CAL);
 
         // Get Sun position at eclipse time
-        const sunPos = sweph.swe_calc_ut(eclipseJd, sweph.SE_SUN, sweph.SEFLG_SWIEPH);
+        const sunPos = sweph.calc_ut(eclipseJd, PLANETS.SUN, SEFLG_SWIEPH);
 
         // Determine eclipse type
         let eclipseType = 'Solar Eclipse';
@@ -293,19 +301,19 @@ function findPrenatalLunarEclipse(birthJd) {
   while (!eclipse && searchAttempts < maxAttempts) {
     try {
       // Search for previous lunar eclipse
-      const result = sweph.swe_lun_eclipse_when(
+      const result = sweph.lun_eclipse_when(
         searchJd,
-        sweph.SEFLG_SWIEPH,
-        sweph.SE_ECL_ALLTYPES_LUNAR,
+        SEFLG_SWIEPH,
+        SE_ECL_ALLTYPES_LUNAR,
         true // backward search
       );
 
       if (result && result.tret && result.tret[0] < birthJd) {
         const eclipseJd = result.tret[0];
-        const eclipseDate = sweph.swe_revjul(eclipseJd, sweph.SE_GREG_CAL);
+        const eclipseDate = sweph.revjul(eclipseJd, SE_GREG_CAL);
 
         // Get Moon position at eclipse time
-        const moonPos = sweph.swe_calc_ut(eclipseJd, sweph.SE_MOON, sweph.SEFLG_SWIEPH);
+        const moonPos = sweph.calc_ut(eclipseJd, PLANETS.MOON, SEFLG_SWIEPH);
 
         // Determine eclipse type
         let eclipseType = 'Lunar Eclipse';
@@ -357,9 +365,9 @@ function findApproximatePrenatalEclipse(birthJd, type) {
   const maxDays = 400;
 
   while (birthJd - searchJd < maxDays) {
-    const sunPos = sweph.swe_calc_ut(searchJd, sweph.SE_SUN, sweph.SEFLG_SWIEPH);
-    const moonPos = sweph.swe_calc_ut(searchJd, sweph.SE_MOON, sweph.SEFLG_SWIEPH);
-    const nodePos = sweph.swe_calc_ut(searchJd, sweph.SE_TRUE_NODE, sweph.SEFLG_SWIEPH);
+    const sunPos = sweph.calc_ut(searchJd, PLANETS.SUN, SEFLG_SWIEPH);
+    const moonPos = sweph.calc_ut(searchJd, PLANETS.MOON, SEFLG_SWIEPH);
+    const nodePos = sweph.calc_ut(searchJd, PLANETS.NORTH_NODE, SEFLG_SWIEPH);
 
     const sunLng = sunPos.longitude;
     const moonLng = moonPos.longitude;
@@ -375,7 +383,7 @@ function findApproximatePrenatalEclipse(birthJd, type) {
       // Solar eclipse = New Moon near node
       const sunMoonDist = Math.abs(normalizeAngle(sunLng - moonLng));
       if (sunMoonDist < 5 && sunNodeDist < 18) {
-        const date = sweph.swe_revjul(searchJd, sweph.SE_GREG_CAL);
+        const date = sweph.revjul(searchJd, SE_GREG_CAL);
         return {
           type: 'Solar Eclipse (approximate)',
           date: `${date.year}-${String(date.month).padStart(2, '0')}-${String(Math.floor(date.day)).padStart(2, '0')}`,
@@ -393,7 +401,7 @@ function findApproximatePrenatalEclipse(birthJd, type) {
       // Lunar eclipse = Full Moon near node
       const sunMoonDist = Math.abs(normalizeAngle(sunLng - moonLng));
       if (Math.abs(sunMoonDist - 180) < 5 && sunNodeDist < 18) {
-        const date = sweph.swe_revjul(searchJd, sweph.SE_GREG_CAL);
+        const date = sweph.revjul(searchJd, SE_GREG_CAL);
         return {
           type: 'Lunar Eclipse (approximate)',
           date: `${date.year}-${String(date.month).padStart(2, '0')}-${String(Math.floor(date.day)).padStart(2, '0')}`,
@@ -553,10 +561,10 @@ function calculateTransits(natalChart, transitDate = new Date()) {
 
   // Get current planetary positions
   const transitPlanets = {};
-  const flag = sweph.SEFLG_SWIEPH | sweph.SEFLG_SPEED;
+  const flag = SEFLG_SWIEPH | SEFLG_SPEED;
 
   for (const [name, id] of Object.entries(PLANETS)) {
-    const result = sweph.swe_calc_ut(transitJd, id, flag);
+    const result = sweph.calc_ut(transitJd, id, flag);
     if (result.flag >= 0) {
       transitPlanets[name.toLowerCase()] = {
         longitude: result.longitude,
