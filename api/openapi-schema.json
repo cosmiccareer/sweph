@@ -927,7 +927,10 @@
               },
               "businessIdeas": {
                 "type": "array",
-                "description": "Suggested business ideas based on chart"
+                "description": "Suggested business ideas based on chart",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
