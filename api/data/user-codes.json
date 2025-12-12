@@ -1,0 +1,19 @@
+{
+  "description": "User-specific access codes for paying customers",
+  "usage_notes": {
+    "master_key": "The main API_KEY env var still works as master access",
+    "user_codes": "Individual codes for paying customers with usage tracking",
+    "tiers": "free (100/day), basic (500/day), premium (2000/day), unlimited (-1)"
+  },
+  "users": {
+    "COSMO-DEMO-2024": {
+      "name": "Demo User",
+      "email": "demo@example.com",
+      "tier": "free",
+      "dailyLimit": 100,
+      "enabled": true,
+      "createdAt": "2024-01-01",
+      "notes": "Demo code for testing"
+    }
+  }
+}
