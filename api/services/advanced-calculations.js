@@ -367,67 +367,150 @@ function findPrenatalLunarEclipse(birthJd) {
  * @returns {object|null}
  */
 function findApproximatePrenatalEclipse(birthJd, type) {
-  // Search backwards in ~14 day increments (half lunar cycle)
+  // First, find New/Full Moons, then check if they're near nodes
+  const candidates = [];
   let searchJd = birthJd - 1;
   const maxDays = 400;
+
+  // Step 1: Find all New Moons (solar) or Full Moons (lunar) before birth
+  let prevSunMoonAngle = null;
 
   while (birthJd - searchJd < maxDays) {
     const sunPos = sweph.calc(searchJd, PLANETS.SUN, SEFLG_SWIEPH);
     const moonPos = sweph.calc(searchJd, PLANETS.MOON, SEFLG_SWIEPH);
-    const nodePos = sweph.calc(searchJd, PLANETS.NORTH_NODE, SEFLG_SWIEPH);
 
-    const sunLng = sunPos.data ? sunPos.data[0] : 0;
-    const moonLng = moonPos.data ? moonPos.data[0] : 0;
-    const nodeLng = nodePos.data ? nodePos.data[0] : 0;
+    if (!sunPos.data || !moonPos.data) {
+      searchJd -= 1;
+      continue;
+    }
 
-    // Check proximity to nodes (eclipses happen near nodes)
-    const sunNodeDist = Math.min(
-      Math.abs(normalizeAngle(sunLng - nodeLng)),
-      Math.abs(normalizeAngle(sunLng - (nodeLng + 180)))
-    );
+    const sunLng = sunPos.data[0];
+    const moonLng = moonPos.data[0];
+    let sunMoonAngle = normalizeAngle(moonLng - sunLng);
 
     if (type === 'solar') {
-      // Solar eclipse = New Moon near node
-      const sunMoonDist = Math.abs(normalizeAngle(sunLng - moonLng));
-      if (sunMoonDist < 5 && sunNodeDist < 18) {
-        const date = sweph.revjul(searchJd, SE_GREG_CAL);
-        return {
-          type: 'Solar Eclipse (approximate)',
-          date: `${date.year}-${String(date.month).padStart(2, '0')}-${String(Math.floor(date.day)).padStart(2, '0')}`,
-          julianDay: searchJd,
-          daysBeforeBirth: Math.floor(birthJd - searchJd),
-          position: {
-            longitude: sunLng,
-            sign: getZodiacSign(sunLng),
-            degree: (sunLng % 30).toFixed(2)
-          },
-          significance: 'Prenatal solar eclipses indicate karmic life themes'
-        };
+      // Looking for New Moon (angle crosses 0)
+      if (prevSunMoonAngle !== null) {
+        // Check if we crossed 0 (New Moon)
+        if (prevSunMoonAngle > 270 && sunMoonAngle < 90) {
+          // Found New Moon, refine the exact time
+          const refinedJd = refineNewMoon(searchJd, searchJd + 1);
+          candidates.push(refinedJd);
+        }
       }
     } else {
-      // Lunar eclipse = Full Moon near node
-      const sunMoonDist = Math.abs(normalizeAngle(sunLng - moonLng));
-      if (Math.abs(sunMoonDist - 180) < 5 && sunNodeDist < 18) {
-        const date = sweph.revjul(searchJd, SE_GREG_CAL);
-        return {
-          type: 'Lunar Eclipse (approximate)',
-          date: `${date.year}-${String(date.month).padStart(2, '0')}-${String(Math.floor(date.day)).padStart(2, '0')}`,
-          julianDay: searchJd,
-          daysBeforeBirth: Math.floor(birthJd - searchJd),
-          position: {
-            longitude: moonLng,
-            sign: getZodiacSign(moonLng),
-            degree: (moonLng % 30).toFixed(2)
-          },
-          significance: 'Prenatal lunar eclipses indicate emotional patterns'
-        };
+      // Looking for Full Moon (angle crosses 180)
+      if (prevSunMoonAngle !== null) {
+        if (prevSunMoonAngle < 180 && sunMoonAngle >= 180) {
+          // Found Full Moon, refine the exact time
+          const refinedJd = refineFullMoon(searchJd - 1, searchJd);
+          candidates.push(refinedJd);
+        }
       }
     }
 
-    searchJd -= 1; // Search day by day
+    prevSunMoonAngle = sunMoonAngle;
+    searchJd -= 1;
+  }
+
+  // Step 2: Check which candidate is closest to the nodes (an eclipse)
+  for (const candJd of candidates) {
+    const sunPos = sweph.calc(candJd, PLANETS.SUN, SEFLG_SWIEPH);
+    const moonPos = sweph.calc(candJd, PLANETS.MOON, SEFLG_SWIEPH);
+    const nodePos = sweph.calc(candJd, PLANETS.NORTH_NODE, SEFLG_SWIEPH);
+
+    if (!sunPos.data || !moonPos.data || !nodePos.data) continue;
+
+    const sunLng = sunPos.data[0];
+    const moonLng = moonPos.data[0];
+    const nodeLng = nodePos.data[0];
+    const southNodeLng = normalizeAngle(nodeLng + 180);
+
+    // Check distance to either node
+    const distToNorth = Math.min(
+      Math.abs(normalizeAngle(sunLng - nodeLng)),
+      360 - Math.abs(normalizeAngle(sunLng - nodeLng))
+    );
+    const distToSouth = Math.min(
+      Math.abs(normalizeAngle(sunLng - southNodeLng)),
+      360 - Math.abs(normalizeAngle(sunLng - southNodeLng))
+    );
+    const nodeDistance = Math.min(distToNorth, distToSouth);
+
+    // Eclipse occurs when Sun is within ~18° of node
+    if (nodeDistance < 18) {
+      const date = sweph.revjul(candJd, SE_GREG_CAL);
+      const lng = type === 'solar' ? sunLng : moonLng;
+
+      return {
+        type: type === 'solar' ? 'Solar Eclipse' : 'Lunar Eclipse',
+        date: `${date.year}-${String(date.month).padStart(2, '0')}-${String(Math.floor(date.day)).padStart(2, '0')}`,
+        julianDay: candJd,
+        daysBeforeBirth: Math.floor(birthJd - candJd),
+        position: {
+          longitude: lng,
+          sign: getZodiacSign(lng),
+          degree: (lng % 30).toFixed(2)
+        },
+        nodeDistance: nodeDistance.toFixed(1),
+        significance: type === 'solar'
+          ? 'Prenatal solar eclipses indicate karmic life themes and soul purpose'
+          : 'Prenatal lunar eclipses indicate emotional patterns and subconscious themes'
+      };
+    }
   }
 
   return null;
+}
+
+/**
+ * Refine New Moon time using binary search
+ */
+function refineNewMoon(jd1, jd2) {
+  for (let i = 0; i < 20; i++) {
+    const mid = (jd1 + jd2) / 2;
+    const sunPos = sweph.calc(mid, PLANETS.SUN, SEFLG_SWIEPH);
+    const moonPos = sweph.calc(mid, PLANETS.MOON, SEFLG_SWIEPH);
+
+    if (!sunPos.data || !moonPos.data) return mid;
+
+    let angle = normalizeAngle(moonPos.data[0] - sunPos.data[0]);
+    if (angle > 180) angle -= 360;
+
+    if (Math.abs(angle) < 0.01) return mid;
+
+    if (angle > 0) {
+      jd2 = mid;
+    } else {
+      jd1 = mid;
+    }
+  }
+  return (jd1 + jd2) / 2;
+}
+
+/**
+ * Refine Full Moon time using binary search
+ */
+function refineFullMoon(jd1, jd2) {
+  for (let i = 0; i < 20; i++) {
+    const mid = (jd1 + jd2) / 2;
+    const sunPos = sweph.calc(mid, PLANETS.SUN, SEFLG_SWIEPH);
+    const moonPos = sweph.calc(mid, PLANETS.MOON, SEFLG_SWIEPH);
+
+    if (!sunPos.data || !moonPos.data) return mid;
+
+    let angle = normalizeAngle(moonPos.data[0] - sunPos.data[0]);
+    const diff = angle - 180;
+
+    if (Math.abs(diff) < 0.01) return mid;
+
+    if (diff > 0) {
+      jd2 = mid;
+    } else {
+      jd1 = mid;
+    }
+  }
+  return (jd1 + jd2) / 2;
 }
 
 /**
