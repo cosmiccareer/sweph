@@ -22,17 +22,39 @@ export default function AstrologyProfile() {
     setLocationLoading(true)
     setLocationError('')
     try {
+      // Get coordinates from OpenStreetMap Nominatim
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(birthData.location)}&limit=1`,
         { headers: { 'User-Agent': 'CCBBB-Client-Portal' } }
       )
       const data = await response.json()
       if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat).toFixed(4)
+        const lng = parseFloat(data[0].lon).toFixed(4)
+        const locationName = data[0].display_name.split(',').slice(0, 3).join(',')
+
+        // Get timezone from coordinates using TimeAPI
+        let timezone = birthData.timezone
+        try {
+          const tzResponse = await fetch(
+            `https://timeapi.io/api/TimeZone/coordinate?latitude=${lat}&longitude=${lng}`
+          )
+          if (tzResponse.ok) {
+            const tzData = await tzResponse.json()
+            if (tzData.timeZone) {
+              timezone = tzData.timeZone
+            }
+          }
+        } catch (tzErr) {
+          console.warn('Could not fetch timezone, using default:', tzErr)
+        }
+
         setBirthData({
           ...birthData,
-          latitude: parseFloat(data[0].lat).toFixed(4),
-          longitude: parseFloat(data[0].lon).toFixed(4),
-          location: data[0].display_name.split(',').slice(0, 3).join(',')
+          latitude: lat,
+          longitude: lng,
+          timezone: timezone,
+          location: locationName
         })
       } else {
         setLocationError('Location not found. Try a different search term.')
