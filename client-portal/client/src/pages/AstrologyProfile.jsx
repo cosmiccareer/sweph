@@ -1,15 +1,47 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchAstrology, fetchIkigai, calculateChart } from '../lib/api'
 import { useState } from 'react'
-import { Stars, Sun, Moon, Loader2, Save } from 'lucide-react'
+import { Stars, Sun, Moon, Loader2, Save, MapPin, Search } from 'lucide-react'
 
 export default function AstrologyProfile() {
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState(false)
   const [birthData, setBirthData] = useState({
     year: '', month: '', day: '', hour: '', minute: '',
-    latitude: '', longitude: '', timezone: 'America/New_York'
+    latitude: '', longitude: '', timezone: 'America/New_York', location: ''
   })
+  const [locationLoading, setLocationLoading] = useState(false)
+  const [locationError, setLocationError] = useState('')
+  const [saveError, setSaveError] = useState('')
+
+  const lookupLocation = async () => {
+    if (!birthData.location.trim()) {
+      setLocationError('Please enter a location')
+      return
+    }
+    setLocationLoading(true)
+    setLocationError('')
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(birthData.location)}&limit=1`,
+        { headers: { 'User-Agent': 'CCBBB-Client-Portal' } }
+      )
+      const data = await response.json()
+      if (data && data.length > 0) {
+        setBirthData({
+          ...birthData,
+          latitude: parseFloat(data[0].lat).toFixed(4),
+          longitude: parseFloat(data[0].lon).toFixed(4),
+          location: data[0].display_name.split(',').slice(0, 3).join(',')
+        })
+      } else {
+        setLocationError('Location not found. Try a different search term.')
+      }
+    } catch (err) {
+      setLocationError('Failed to lookup location. Please enter coordinates manually.')
+    }
+    setLocationLoading(false)
+  }
 
   const { data: astrology, isLoading } = useQuery({
     queryKey: ['astrology'],
@@ -25,9 +57,14 @@ export default function AstrologyProfile() {
   const saveMutation = useMutation({
     mutationFn: (data) => calculateChart(data, true),
     onSuccess: () => {
+      setSaveError('')
       queryClient.invalidateQueries({ queryKey: ['astrology'] })
       queryClient.invalidateQueries({ queryKey: ['ikigai'] })
       setEditing(false)
+    },
+    onError: (error) => {
+      console.error('Save error:', error)
+      setSaveError(error?.response?.data?.error || error?.message || 'Failed to save. Check console for details.')
     }
   })
 
@@ -104,6 +141,26 @@ export default function AstrologyProfile() {
                 onChange={(e) => setBirthData({ ...birthData, timezone: e.target.value })}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2" />
             </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <MapPin className="inline h-4 w-4 mr-1" />
+                Birth Location
+              </label>
+              <div className="flex gap-2">
+                <input type="text" placeholder="City, State, Country (e.g., New York, NY, USA)"
+                  value={birthData.location}
+                  onChange={(e) => setBirthData({ ...birthData, location: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), lookupLocation())}
+                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2" />
+                <button type="button" onClick={lookupLocation} disabled={locationLoading}
+                  className="inline-flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+                  {locationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  Lookup
+                </button>
+              </div>
+              {locationError && <p className="text-red-500 text-sm mt-1">{locationError}</p>}
+              <p className="text-gray-400 text-xs mt-1">Enter your birth city and click Lookup to auto-fill coordinates</p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
               <input type="number" step="any" placeholder="40.7128" value={birthData.latitude}
@@ -117,16 +174,21 @@ export default function AstrologyProfile() {
                 className="w-full rounded-lg border border-gray-300 px-3 py-2" />
             </div>
           </div>
-          <div className="mt-4 flex gap-2">
-            <button onClick={handleSave} disabled={saveMutation.isPending}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
-              {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              Save & Calculate
-            </button>
-            {editing && (
-              <button onClick={() => setEditing(false)} className="px-4 py-2 text-gray-600 hover:text-gray-900">
-                Cancel
+          <div className="mt-4 flex flex-col gap-2">
+            <div className="flex gap-2">
+              <button onClick={handleSave} disabled={saveMutation.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save & Calculate
               </button>
+              {editing && (
+                <button onClick={() => setEditing(false)} className="px-4 py-2 text-gray-600 hover:text-gray-900">
+                  Cancel
+                </button>
+              )}
+            </div>
+            {saveError && (
+              <p className="text-red-500 text-sm">{saveError}</p>
             )}
           </div>
         </div>
