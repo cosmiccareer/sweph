@@ -1,18 +1,38 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchAstrology, fetchIkigai, calculateChart } from '../lib/api'
 import { useState } from 'react'
-import { Stars, Sun, Moon, Loader2, Save, MapPin, Search } from 'lucide-react'
+import { Stars, Sun, Moon, Loader2, Save, MapPin, Search, Clock, AlertCircle, HelpCircle } from 'lucide-react'
 
 export default function AstrologyProfile() {
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState(false)
   const [birthData, setBirthData] = useState({
     year: '', month: '', day: '', hour: '', minute: '',
-    latitude: '', longitude: '', timezone: 'America/New_York', location: ''
+    latitude: '', longitude: '', timezone: 'America/New_York', location: '',
+    birthTimeUnknown: false, selectedMoonSign: null
   })
   const [locationLoading, setLocationLoading] = useState(false)
   const [locationError, setLocationError] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [moonSignOptions, setMoonSignOptions] = useState(null)
+
+  const handleBirthTimeUnknownChange = (checked) => {
+    if (checked) {
+      setBirthData({
+        ...birthData,
+        birthTimeUnknown: true,
+        hour: '12',
+        minute: '0'
+      })
+    } else {
+      setBirthData({
+        ...birthData,
+        birthTimeUnknown: false,
+        hour: '',
+        minute: ''
+      })
+    }
+  }
 
   const lookupLocation = async () => {
     if (!birthData.location.trim()) {
@@ -102,7 +122,9 @@ export default function AstrologyProfile() {
       hour: parseInt(birthData.hour),
       minute: parseInt(birthData.minute),
       latitude: parseFloat(birthData.latitude),
-      longitude: parseFloat(birthData.longitude)
+      longitude: parseFloat(birthData.longitude),
+      birthTimeUnknown: birthData.birthTimeUnknown,
+      selectedMoonSign: birthData.selectedMoonSign
     })
   }
 
@@ -145,17 +167,55 @@ export default function AstrologyProfile() {
                 onChange={(e) => setBirthData({ ...birthData, day: e.target.value })}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2" />
             </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={birthData.birthTimeUnknown}
+                  onChange={(e) => handleBirthTimeUnknownChange(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <span className="text-sm text-gray-700">I don't know my exact birth time</span>
+              </label>
+              {birthData.birthTimeUnknown && (
+                <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-amber-800">
+                      <p className="font-medium">Using 12:00 PM as default birth time</p>
+                      <p className="mt-1">Without an exact birth time:</p>
+                      <ul className="list-disc ml-4 mt-1 space-y-1">
+                        <li>House positions and Rising Sign cannot be calculated accurately</li>
+                        <li>The Moon may have changed signs during your birth day</li>
+                      </ul>
+                      <p className="mt-2">You can enter an approximate time if you have a general idea (morning, afternoon, evening).</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hour (24h)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <Clock className="inline h-4 w-4 mr-1" />
+                Hour (24h)
+              </label>
               <input type="number" placeholder="0-23" min="0" max="23" value={birthData.hour}
                 onChange={(e) => setBirthData({ ...birthData, hour: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2" />
+                disabled={birthData.birthTimeUnknown}
+                className={`w-full rounded-lg border border-gray-300 px-3 py-2 ${birthData.birthTimeUnknown ? 'bg-gray-100 text-gray-500' : ''}`} />
+              {birthData.birthTimeUnknown && (
+                <p className="text-xs text-gray-500 mt-1">Default: 12 (noon)</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Minute</label>
               <input type="number" placeholder="0-59" min="0" max="59" value={birthData.minute}
                 onChange={(e) => setBirthData({ ...birthData, minute: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2" />
+                disabled={birthData.birthTimeUnknown}
+                className={`w-full rounded-lg border border-gray-300 px-3 py-2 ${birthData.birthTimeUnknown ? 'bg-gray-100 text-gray-500' : ''}`} />
+              {birthData.birthTimeUnknown && (
+                <p className="text-xs text-gray-500 mt-1">Default: 0</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
@@ -218,6 +278,18 @@ export default function AstrologyProfile() {
 
       {astroData?.hasBirthData && !editing && (
         <>
+          {astroData.birthData?.birthTimeUnknown && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <div className="flex items-start gap-2">
+                <HelpCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
+                  <p className="font-medium">Birth time unknown</p>
+                  <p className="mt-1">Your Rising Sign and house placements may not be accurate. The Moon sign shown is based on noon - if the Moon changed signs on your birth day, you may resonate with a different Moon sign.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {astroData.planets?.sun && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -234,19 +306,51 @@ export default function AstrologyProfile() {
                 <div className="flex items-center gap-3 mb-3">
                   <Moon className="h-6 w-6 text-gray-400" />
                   <h3 className="font-semibold text-gray-900">Moon Sign</h3>
+                  {astroData.birthData?.birthTimeUnknown && (
+                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Approximate</span>
+                  )}
                 </div>
-                <p className="text-2xl font-serif text-indigo-900">{astroData.planets.moon.sign}</p>
+                <p className="text-2xl font-serif text-indigo-900">
+                  {astroData.birthData?.selectedMoonSign || astroData.planets.moon.sign}
+                </p>
                 <p className="text-sm text-gray-500 mt-1">Your emotional nature</p>
+                {astroData.birthData?.birthTimeUnknown && astroData.possibleMoonSigns && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <p className="text-xs text-gray-500 mb-2">Moon may have been in:</p>
+                    <div className="flex gap-2">
+                      {astroData.possibleMoonSigns.map((sign) => (
+                        <button
+                          key={sign}
+                          onClick={() => {/* Would need mutation to update */}}
+                          className={`text-xs px-2 py-1 rounded ${
+                            (astroData.birthData?.selectedMoonSign || astroData.planets.moon.sign) === sign
+                              ? 'bg-indigo-100 text-indigo-700'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {sign}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {astroData.ascendant && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 ${astroData.birthData?.birthTimeUnknown ? 'opacity-60' : ''}`}>
                 <div className="flex items-center gap-3 mb-3">
                   <Stars className="h-6 w-6 text-indigo-500" />
                   <h3 className="font-semibold text-gray-900">Rising Sign</h3>
+                  {astroData.birthData?.birthTimeUnknown && (
+                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Requires exact time</span>
+                  )}
                 </div>
                 <p className="text-2xl font-serif text-indigo-900">{astroData.ascendant.sign}</p>
-                <p className="text-sm text-gray-500 mt-1">How others see you</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {astroData.birthData?.birthTimeUnknown
+                    ? 'Birth time needed for accurate Rising Sign'
+                    : 'How others see you'}
+                </p>
               </div>
             )}
           </div>
