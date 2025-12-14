@@ -8,7 +8,7 @@ export default function AstrologyProfile() {
   const [editing, setEditing] = useState(false)
   const [birthData, setBirthData] = useState({
     year: '', month: '', day: '', hour: '', minute: '',
-    latitude: '', longitude: '', timezone: 'America/New_York', location: '',
+    latitude: '', longitude: '', timezone: '', location: '',
     birthTimeUnknown: false, selectedMoonSign: null
   })
   const [locationLoading, setLocationLoading] = useState(false)
@@ -43,18 +43,24 @@ export default function AstrologyProfile() {
     setLocationError('')
     try {
       // Get coordinates from OpenStreetMap Nominatim
+      // Note: Don't set custom headers - browsers block them due to CORS
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(birthData.location)}&limit=1`,
-        { headers: { 'User-Agent': 'CCBBB-Client-Portal' } }
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(birthData.location)}&limit=1&addressdetails=1`
       )
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
       const data = await response.json()
+
       if (data && data.length > 0) {
         const lat = parseFloat(data[0].lat).toFixed(4)
         const lng = parseFloat(data[0].lon).toFixed(4)
         const locationName = data[0].display_name.split(',').slice(0, 3).join(',')
 
         // Get timezone from coordinates using TimeAPI
-        let timezone = birthData.timezone
+        let timezone = ''
         try {
           const tzResponse = await fetch(
             `https://timeapi.io/api/TimeZone/coordinate?latitude=${lat}&longitude=${lng}`
@@ -66,7 +72,7 @@ export default function AstrologyProfile() {
             }
           }
         } catch (tzErr) {
-          console.warn('Could not fetch timezone, using default:', tzErr)
+          console.warn('Could not fetch timezone:', tzErr)
         }
 
         setBirthData({
@@ -76,11 +82,13 @@ export default function AstrologyProfile() {
           timezone: timezone,
           location: locationName
         })
+        setLocationError('')
       } else {
-        setLocationError('Location not found. Try a different search term.')
+        setLocationError('Location not found. Try a different search term (e.g., "New York, USA").')
       }
     } catch (err) {
-      setLocationError('Failed to lookup location. Please enter coordinates manually.')
+      console.error('Location lookup error:', err)
+      setLocationError(`Lookup failed: ${err.message}. Please enter coordinates manually.`)
     }
     setLocationLoading(false)
   }
@@ -217,43 +225,44 @@ export default function AstrologyProfile() {
                 <p className="text-xs text-gray-500 mt-1">Default: 0</p>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
-              <input type="text" placeholder="America/New_York" value={birthData.timezone}
-                onChange={(e) => setBirthData({ ...birthData, timezone: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2" />
-            </div>
             <div className="sm:col-span-2 lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 <MapPin className="inline h-4 w-4 mr-1" />
                 Birth Location
               </label>
               <div className="flex gap-2">
-                <input type="text" placeholder="City, State, Country (e.g., New York, NY, USA)"
+                <input type="text" placeholder="Enter city, state, country (e.g., New York, NY, USA)"
                   value={birthData.location}
                   onChange={(e) => setBirthData({ ...birthData, location: e.target.value })}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), lookupLocation())}
                   className="flex-1 rounded-lg border border-gray-300 px-3 py-2" />
                 <button type="button" onClick={lookupLocation} disabled={locationLoading}
-                  className="inline-flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+                  className="inline-flex items-center gap-1 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 disabled:opacity-50">
                   {locationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                   Lookup
                 </button>
               </div>
               {locationError && <p className="text-red-500 text-sm mt-1">{locationError}</p>}
-              <p className="text-gray-400 text-xs mt-1">Enter your birth city and click Lookup to auto-fill coordinates</p>
+              <p className="text-gray-400 text-xs mt-1">Click Lookup to auto-fill timezone and coordinates below</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+              <input type="text" placeholder="Auto-filled from location" value={birthData.timezone}
+                onChange={(e) => setBirthData({ ...birthData, timezone: e.target.value })}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 bg-gray-50" />
+              <p className="text-gray-400 text-xs mt-1">e.g., America/New_York</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
-              <input type="number" step="any" placeholder="40.7128" value={birthData.latitude}
+              <input type="number" step="any" placeholder="Auto-filled" value={birthData.latitude}
                 onChange={(e) => setBirthData({ ...birthData, latitude: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2" />
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 bg-gray-50" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
-              <input type="number" step="any" placeholder="-74.0060" value={birthData.longitude}
+              <input type="number" step="any" placeholder="Auto-filled" value={birthData.longitude}
                 onChange={(e) => setBirthData({ ...birthData, longitude: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2" />
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 bg-gray-50" />
             </div>
           </div>
           <div className="mt-4 flex flex-col gap-2">
