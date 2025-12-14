@@ -116,13 +116,32 @@ export async function runMigrations() {
       created_at TIMESTAMP DEFAULT NOW()
     )`,
 
+    // User devices table (for device limiting) - must come before sessions
+    `CREATE TABLE IF NOT EXISTS user_devices (
+      id UUID PRIMARY KEY,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      device_fingerprint VARCHAR(255) NOT NULL,
+      device_name VARCHAR(255),
+      device_type VARCHAR(50),
+      browser VARCHAR(100),
+      os VARCHAR(100),
+      ip_address VARCHAR(45),
+      last_used TIMESTAMP DEFAULT NOW(),
+      created_at TIMESTAMP DEFAULT NOW(),
+      is_trusted BOOLEAN DEFAULT false,
+      UNIQUE(user_id, device_fingerprint)
+    )`,
+
     // Sessions table (for refresh token management)
     `CREATE TABLE IF NOT EXISTS sessions (
       id UUID PRIMARY KEY,
       user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       refresh_token TEXT NOT NULL,
+      device_id UUID REFERENCES user_devices(id) ON DELETE CASCADE,
+      is_active BOOLEAN DEFAULT true,
       expires_at TIMESTAMP NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
+      created_at TIMESTAMP DEFAULT NOW(),
+      last_activity TIMESTAMP DEFAULT NOW()
     )`,
 
     // Indexes
@@ -131,7 +150,11 @@ export async function runMigrations() {
     `CREATE INDEX IF NOT EXISTS idx_user_progress_user ON user_progress(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_user_documents_user ON user_documents(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_chat_messages_user ON chat_messages(user_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(created_at DESC)`
+    `CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(created_at DESC)`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_active ON sessions(is_active) WHERE is_active = true`,
+    `CREATE INDEX IF NOT EXISTS idx_user_devices_user ON user_devices(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_user_devices_fingerprint ON user_devices(device_fingerprint)`
   ];
 
   console.log('Running database migrations...');

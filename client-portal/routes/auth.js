@@ -1,6 +1,7 @@
 /**
  * Authentication Routes
  * Handles user registration, login, and session management
+ * Implements single active session + device limiting
  */
 
 import express from 'express';
@@ -13,6 +14,16 @@ import {
   authenticateToken
 } from '../middleware/auth.js';
 import { getDb } from '../services/database.js';
+import {
+  registerDevice,
+  createSession,
+  validateSession,
+  getUserDevices,
+  removeDevice,
+  generateDeviceFingerprint,
+  parseUserAgent,
+  MAX_DEVICES
+} from '../services/sessionManager.js';
 
 const router = express.Router();
 
@@ -26,7 +37,7 @@ const router = express.Router();
  */
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, birthData } = req.body;
+    const { email, password, name, birthData, deviceFingerprint, deviceName } = req.body;
 
     // Validate required fields
     if (!email || !password || !name) {
@@ -64,8 +75,24 @@ router.post('/register', async (req, res) => {
 
     const user = result.rows[0];
 
+    // Register device
+    const userAgent = req.headers['user-agent'] || '';
+    const ipAddress = req.ip || req.connection?.remoteAddress || 'unknown';
+    const fingerprint = deviceFingerprint || generateDeviceFingerprint(userAgent, ipAddress);
+
+    const deviceResult = await registerDevice(user.id, {
+      fingerprint,
+      userAgent,
+      ipAddress,
+      deviceName
+    });
+
     // Generate tokens
     const tokens = generateTokens(user);
+
+    // Create session with device tracking
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const sessionId = await createSession(user.id, deviceResult.device?.id, tokens.refreshToken, expiresAt);
 
     res.status(201).json({
       success: true,
@@ -76,7 +103,13 @@ router.post('/register', async (req, res) => {
           name: user.name,
           role: user.role
         },
-        ...tokens
+        ...tokens,
+        sessionId,
+        device: deviceResult.device ? {
+          id: deviceResult.device.id,
+          name: deviceResult.device.device_name,
+          type: deviceResult.device.device_type
+        } : null
       }
     });
   } catch (error) {
@@ -91,10 +124,11 @@ router.post('/register', async (req, res) => {
 /**
  * POST /api/v1/auth/login
  * Login with email/password
+ * Enforces single active session and device limits
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, deviceFingerprint, deviceName } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -127,6 +161,33 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Register/update device
+    const userAgent = req.headers['user-agent'] || '';
+    const ipAddress = req.ip || req.connection?.remoteAddress || 'unknown';
+    const fingerprint = deviceFingerprint || generateDeviceFingerprint(userAgent, ipAddress);
+
+    const deviceResult = await registerDevice(user.id, {
+      fingerprint,
+      userAgent,
+      ipAddress,
+      deviceName
+    });
+
+    // Check device limit
+    if (deviceResult.deviceLimitReached) {
+      return res.status(403).json({
+        success: false,
+        error: 'device_limit_reached',
+        message: `You have reached the maximum of ${MAX_DEVICES} devices. Please remove a device to continue.`,
+        devices: deviceResult.existingDevices.map(d => ({
+          id: d.id,
+          name: d.device_name,
+          type: d.device_type,
+          lastUsed: d.last_used
+        }))
+      });
+    }
+
     // Update last login
     await db.query(
       'UPDATE users SET last_login = NOW() WHERE id = $1',
@@ -135,6 +196,10 @@ router.post('/login', async (req, res) => {
 
     // Generate tokens
     const tokens = generateTokens({ ...user, source: 'local' });
+
+    // Create session (this invalidates all previous sessions - single active session)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const sessionId = await createSession(user.id, deviceResult.device?.id, tokens.refreshToken, expiresAt);
 
     res.json({
       success: true,
@@ -145,7 +210,14 @@ router.post('/login', async (req, res) => {
           name: user.name,
           role: user.role
         },
-        ...tokens
+        ...tokens,
+        sessionId,
+        device: deviceResult.device ? {
+          id: deviceResult.device.id,
+          name: deviceResult.device.device_name,
+          type: deviceResult.device.device_type,
+          isNew: deviceResult.isNew
+        } : null
       }
     });
   } catch (error) {
@@ -240,6 +312,7 @@ router.post('/wordpress', async (req, res) => {
 /**
  * POST /api/v1/auth/refresh
  * Refresh access token
+ * Validates session is still active (not logged out from another device)
  */
 router.post('/refresh', async (req, res) => {
   try {
@@ -254,6 +327,19 @@ router.post('/refresh', async (req, res) => {
 
     // Verify refresh token
     const decoded = verifyRefreshToken(refreshToken);
+
+    // Validate session is still active
+    const sessionCheck = await validateSession(decoded.userId, refreshToken);
+    if (!sessionCheck.valid) {
+      return res.status(401).json({
+        success: false,
+        error: 'session_invalidated',
+        reason: sessionCheck.reason,
+        message: sessionCheck.reason === 'session_invalid'
+          ? 'Your session has been invalidated. You may have logged in from another device.'
+          : 'Session expired'
+      });
+    }
 
     const db = getDb();
     const result = await db.query(
@@ -286,15 +372,144 @@ router.post('/refresh', async (req, res) => {
 
 /**
  * POST /api/v1/auth/logout
- * Logout user (invalidate token on client side)
+ * Logout user and invalidate session
  */
 router.post('/logout', authenticateToken, async (req, res) => {
-  // In a production system, you'd add the token to a blacklist
-  // For now, we just return success (client should discard tokens)
-  res.json({
-    success: true,
-    message: 'Logged out successfully'
-  });
+  try {
+    const { refreshToken } = req.body;
+    const db = getDb();
+
+    // Invalidate the session if refresh token provided
+    if (refreshToken) {
+      await db.query(
+        'UPDATE sessions SET is_active = false WHERE user_id = $1 AND refresh_token = $2',
+        [req.user.id, refreshToken]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  }
+});
+
+// =============================================================================
+// DEVICE MANAGEMENT
+// =============================================================================
+
+/**
+ * GET /api/v1/auth/devices
+ * Get all devices registered for the current user
+ */
+router.get('/devices', authenticateToken, async (req, res) => {
+  try {
+    const devices = await getUserDevices(req.user.id);
+
+    res.json({
+      success: true,
+      data: {
+        devices: devices.map(d => ({
+          id: d.id,
+          name: d.device_name,
+          type: d.device_type,
+          browser: d.browser,
+          os: d.os,
+          lastUsed: d.last_used,
+          createdAt: d.created_at,
+          hasActiveSession: d.has_active_session,
+          isTrusted: d.is_trusted
+        })),
+        maxDevices: MAX_DEVICES
+      }
+    });
+  } catch (error) {
+    console.error('Get devices error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get devices'
+    });
+  }
+});
+
+/**
+ * DELETE /api/v1/auth/devices/:deviceId
+ * Remove a device (and invalidate its sessions)
+ */
+router.delete('/devices/:deviceId', authenticateToken, async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+
+    const result = await removeDevice(req.user.id, deviceId);
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        error: result.error
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Device removed successfully'
+    });
+  } catch (error) {
+    console.error('Remove device error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to remove device'
+    });
+  }
+});
+
+/**
+ * GET /api/v1/auth/session-status
+ * Check if current session is still valid
+ */
+router.get('/session-status', authenticateToken, async (req, res) => {
+  try {
+    const { sessionId } = req.query;
+    const db = getDb();
+
+    if (sessionId) {
+      const result = await db.query(
+        'SELECT is_active FROM sessions WHERE id = $1 AND user_id = $2',
+        [sessionId, req.user.id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.json({
+          success: true,
+          data: { active: false, reason: 'session_not_found' }
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: {
+          active: result.rows[0].is_active,
+          reason: result.rows[0].is_active ? null : 'logged_out_another_device'
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { active: true }
+    });
+  } catch (error) {
+    console.error('Session status error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check session status'
+    });
+  }
 });
 
 /**
