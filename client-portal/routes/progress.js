@@ -1,20 +1,46 @@
 /**
  * Progress Routes
  * Track user course progress and completed documents
+ * Integrates with AcademyLMS for automatic progress sync
  */
 
 import express from 'express';
 import { getDb } from '../services/database.js';
+import {
+  syncProgressFromLMS,
+  isIntegrationConfigured,
+  getModuleMapping,
+  verifyPurchase
+} from '../services/wordpressIntegration.js';
 
 const router = express.Router();
 
 /**
  * GET /api/v1/progress
- * Get user's course progress
+ * Get user's course progress (auto-syncs from AcademyLMS if configured)
  */
 router.get('/', async (req, res) => {
   try {
     const db = getDb();
+
+    // Check if user has WordPress ID for auto-sync
+    const userResult = await db.query(
+      'SELECT wordpress_id, email FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    const wordpressId = userResult.rows[0]?.wordpress_id;
+    let syncResult = null;
+
+    // Auto-sync from AcademyLMS if user has WordPress ID and integration is configured
+    if (wordpressId && isIntegrationConfigured().academylms) {
+      try {
+        syncResult = await syncProgressFromLMS(req.user.id, wordpressId, db);
+      } catch (syncError) {
+        console.warn('Auto-sync failed:', syncError.message);
+      }
+    }
+
     const result = await db.query(
       `SELECT module_id, status, started_at, completed_at, notes
        FROM user_progress
@@ -31,7 +57,12 @@ router.get('/', async (req, res) => {
           completed: result.rows.filter(r => r.status === 'completed').length,
           inProgress: result.rows.filter(r => r.status === 'in_progress').length,
           notStarted: result.rows.filter(r => r.status === 'not_started').length
-        }
+        },
+        sync: syncResult ? {
+          synced: syncResult.synced,
+          source: 'academylms',
+          lastSync: new Date().toISOString()
+        } : null
       }
     });
   } catch (error) {
@@ -39,6 +70,113 @@ router.get('/', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get progress'
+    });
+  }
+});
+
+/**
+ * POST /api/v1/progress/sync
+ * Manually trigger sync from AcademyLMS
+ */
+router.post('/sync', async (req, res) => {
+  try {
+    const db = getDb();
+
+    // Get user's WordPress ID
+    const userResult = await db.query(
+      'SELECT wordpress_id, email FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    const wordpressId = userResult.rows[0]?.wordpress_id;
+
+    if (!wordpressId) {
+      return res.status(400).json({
+        success: false,
+        error: 'No WordPress account linked. Please log in via WordPress SSO to enable sync.'
+      });
+    }
+
+    const config = isIntegrationConfigured();
+    if (!config.academylms) {
+      return res.status(400).json({
+        success: false,
+        error: 'AcademyLMS integration not configured'
+      });
+    }
+
+    // Perform sync
+    const syncResult = await syncProgressFromLMS(req.user.id, wordpressId, db);
+
+    if (!syncResult.success) {
+      return res.status(500).json({
+        success: false,
+        error: syncResult.error || 'Sync failed'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        synced: syncResult.synced,
+        totalLessons: syncResult.totalLessons,
+        mappedModules: syncResult.mappedModules,
+        message: `Synced ${syncResult.synced} modules from AcademyLMS`
+      }
+    });
+  } catch (error) {
+    console.error('Manual sync error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync progress'
+    });
+  }
+});
+
+/**
+ * GET /api/v1/progress/integration-status
+ * Check WordPress/WooCommerce/AcademyLMS integration status
+ */
+router.get('/integration-status', async (req, res) => {
+  try {
+    const db = getDb();
+
+    // Get user info
+    const userResult = await db.query(
+      'SELECT wordpress_id, email, source FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    const user = userResult.rows[0];
+    const config = isIntegrationConfigured();
+
+    let purchaseVerified = null;
+    if (config.woocommerce && user.email) {
+      try {
+        purchaseVerified = await verifyPurchase(user.email);
+      } catch (e) {
+        purchaseVerified = { verified: false, error: e.message };
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        integration: config,
+        user: {
+          hasWordPressId: !!user.wordpress_id,
+          source: user.source,
+          wordpressId: user.wordpress_id
+        },
+        purchase: purchaseVerified,
+        moduleMapping: getModuleMapping()
+      }
+    });
+  } catch (error) {
+    console.error('Integration status error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check integration status'
     });
   }
 });
